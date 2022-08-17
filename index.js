@@ -146,6 +146,18 @@ async function waitForPageLoadWithScreenshots(filename, page){
   await page.screenshot({
     path: `${filename}.png`
   });
+  await page.screenshot({
+    path: `${filename}.png`
+  });
+  await page.screenshot({
+    path: `${filename}.png`
+  });
+  await page.screenshot({
+    path: `${filename}.png`
+  });
+  await page.screenshot({
+    path: `${filename}.png`
+  });
 }
 
 tcgPlayerDownloadPrinter();
