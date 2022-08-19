@@ -36,6 +36,7 @@ const tcgPlayerDownloadPrinter = async () => {
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
     await printAllOrders();
+    await moveAllFiles();
 
     await browser.close();
   }catch(err){
@@ -58,15 +59,18 @@ async function printAllOrders(){
       }
     });
   });
+}
 
-  // Move all files to archive folder in Documents
+async function moveAllFiles(){
+  console.log('Moving all files');
+  // Open downloads folder, loop through all files, move them
   fs.readdir(configs.downloadPath, (err, files) => {
+    console.log('files', files);
     files.forEach(file => {
-      if(file.includes('.pdf')){
-        fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, (err) => {
-          if (err) throw err;
-        });
-      }
+      console.log('Moving file', file);
+      fs.rename(`${configs.downloadPath}/${file}`, `${configs.movePath}/${file}`, function (err) {
+        if (err) throw err;
+      });
     });
   });
 }
