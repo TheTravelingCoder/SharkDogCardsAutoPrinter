@@ -219,7 +219,3 @@ async function waitForPageLoadWithScreenshots(filename, page){
 }
 
 tcgPlayerDownloadPrinter();
-
-// Andrews Printer
-// deviceId: 'Brother HL-L3270CDW series',
-// name: 'Brother HL-L3270CDW series'
