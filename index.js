@@ -48,10 +48,10 @@ const tcgPlayerDownloadPrinter = async () => {
     await downloadAllOrderPDFs(page);
     setTimeout(async () => {
       await printAllOrders();
-    }, 3000); 
+    }, orders.length * 1000);); 
     setTimeout(async () => {
       await moveAllFiles();
-    }, 6000); 
+    }, orders.length * 3000);); 
 
     await browser.close();
   }catch(err){
