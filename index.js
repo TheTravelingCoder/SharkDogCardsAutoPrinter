@@ -51,7 +51,7 @@ const tcgPlayerDownloadPrinter = async () => {
     }, 3000); 
     setTimeout(async () => {
       await moveAllFiles();
-    }, 3000); 
+    }, 6000); 
 
     await browser.close();
   }catch(err){
