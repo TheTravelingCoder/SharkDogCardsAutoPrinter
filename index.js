@@ -111,7 +111,7 @@ async function dropAllUnneededOrders(){
   // Drop all in array before the last order
   var index = orders.indexOf(lastOrder);
   if (index > -1) {
-    for(var i = 0; i < index; i++){
+    for(var i = 0; i < index + 1; i++){
       orders.shift();
     }
   }
