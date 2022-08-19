@@ -11,7 +11,7 @@ const tcgPlayerDownloadPrinter = async () => {
       '--no-sandbox',
     ],
     headless: false,
-    slowMo: 100
+    slowMo: 10
   });
   try{
     await checkForlastOrderTxt();
