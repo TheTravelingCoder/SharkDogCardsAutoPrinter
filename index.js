@@ -49,9 +49,12 @@ async function printAllOrders(){
   console.log('Printing all orders');
   // Open downloads folder, loop through all files, print them
   fs.readdir(configs.downloadPath, (err, files) => {
+    console.log('files', files);
     files.forEach(file => {
+      console.log('Printing file', file);
       // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
       if(file.includes('.pdf')){
+        console.log('Printing PDF');
         print.print(`${configs.downloadPath}/${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
       }
     });
