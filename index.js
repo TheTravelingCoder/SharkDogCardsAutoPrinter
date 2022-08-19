@@ -79,7 +79,7 @@ async function moveAllFiles(){
     console.log('files', files);
     files.forEach(file => {
       console.log('Moving file', file);
-      fs.rename(`${configs.downloadPath}\\${file}`, `${configs.movePath}\\${file}`, function (err) {
+      fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
         if (err) throw err;
       });
     });
