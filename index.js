@@ -8,16 +8,17 @@ var lastOrder;
 
 const tcgPlayerDownloadPrinter = async () => {
   const browser = await puppeteer.launch({
-    // executablePath:"/usr/bin/chromium-browser",
-    args: ['--no-sandbox',
-  
+    args: [
+      '--no-sandbox',
     ],
     headless: false,
     slowMo: 100
   });
   try{
+    await checkForlastOrderTxt();
     //Handles logging into tcgplayer.com
     const page = await browser.newPage();
+    await page.setViewport({width: 1920, height: 1080});
     await page.goto(`${configs.url}/admin/orders/orderlist`);
 
     await loginToTCGPlayer(page);
@@ -27,12 +28,13 @@ const tcgPlayerDownloadPrinter = async () => {
     await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
 
     await createListOfOrders(page);
-    await checkForlastOrderTxt();
 
     if(lastOrder){
       await dropAllUnneededOrders();
     }
 
+    await ifPaginationExistsClickNextPage(page);
+    console.log('orders', orders);
     await downloadAllOrderPDFs(page);
     await printAllOrders();
 
@@ -45,10 +47,14 @@ const tcgPlayerDownloadPrinter = async () => {
 }
 
 async function printAllOrders(){
+  console.log('Printing all orders');
   // Open downloads folder, loop through all files, print them
   fs.readdir(configs.downloadPath, (err, files) => {
     files.forEach(file => {
-      print.print(`${configs.downloadPath}/${file}`);
+      // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
+      if(file.includes('.pdf')){
+        print.print(`${configs.downloadPath}/${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
+      }
     });
   });
 
@@ -62,29 +68,58 @@ async function printAllOrders(){
   });
 }
 
+async function ifPaginationExistsClickNextPage(page){
+  console.log('Checking for pagination');
+  // Find unordered list of pagination-list
+  const paginationList = await page.$('ul.pagination-list');
+  if(paginationList){
+    console.log('Pagination exists');
+    // Find all list items in pagination-list
+    const paginationListItems = await paginationList.$$('li');
+    // Count list items
+    const paginationListItemsCount = paginationListItems.length;
+    // If there is more than 1 list item, loop through and click each
+    if(paginationListItemsCount > 1){
+      console.log('There is more than 1 page of orders');
+      for(let i = 0; i < paginationListItemsCount; i++){
+        console.log('Clicking next page');
+        await paginationListItems[i].click();
+        await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+        await createListOfOrders(page);
+        await dropAllUnneededOrders();
+      }
+    }
+  }
+}
+
 async function dropAllUnneededOrders(){
+  console.log('Dropping all unneeded orders');
   // Loop through orders and drop duplicates
   for (var i = 0; i < orders.length; i++) {
     for (var j = i + 1; j < orders.length; j++) {
-      if (orders[i].orderNumber === orders[j].orderNumber) {
+      if (orders[i] === orders[j]) {
         orders.splice(j, 1);
+        i--;
       }
     }
   }
 
-  // Drop all orders after the last order
-  var indexOfLastOrder = orders.indexOf(lastOrder);
-  if(indexOfLastOrder > -1){
-    orders = orders.slice(0, indexOfLastOrder);
+  // Drop all in array before the last order
+  var index = orders.indexOf(lastOrder);
+  if (index > -1) {
+    for(var i = 0; i < index; i++){
+      orders.shift();
+    }
   }
 }
 
 async function downloadAllOrderPDFs(page){
+  console.log('Downloading all order PDFs');
   await writeFinalOrderNumber(orders[0]);
   // Loop through all orders
   for (var i = 0; i < orders.length; i++) {
     await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     // Click parent link to download PDF
     const [button] = await page.$x("//a[contains(., 'Print Packing Slip')]");
     if (button) {
@@ -94,6 +129,7 @@ async function downloadAllOrderPDFs(page){
 }
 
 async function writeFinalOrderNumber(orderNumber){
+  console.log('Writing final order number');
   fs.writeFile('./lastOrder.txt', orderNumber, (err) => {
       
     // In case of a error throw err.
@@ -102,6 +138,7 @@ async function writeFinalOrderNumber(orderNumber){
 }
 
 async function clickAllOpenOrdersButton(page){
+  console.log('Clicking All Open Orders Button');
   const [button] = await page.$x("//button[contains(., 'All Open Orders')]");
   if (button) {
       await button.click();
@@ -109,12 +146,14 @@ async function clickAllOpenOrdersButton(page){
 }
 
 async function loginToTCGPlayer(page){
+  console.log('Logging into TCGPlayer');
   await page.type('#UserName', configs.email);
   await page.type('#Password', configs.password);
   await page.keyboard.press('Enter');
 }
 
 async function checkForlastOrderTxt(){
+  console.log('Checking for lastOrder.txt');
   // Check for lastOrder.txt
   if (fs.existsSync('./lastOrder.txt')) {
     fs.readFile('./lastOrder.txt', 'utf8', function(err, data) {
@@ -125,6 +164,7 @@ async function checkForlastOrderTxt(){
 }
 
 async function createListOfOrders(page){
+  console.log('Creating list of orders');
   var table = await page.$eval('table.table > tbody', el => el.innerHTML);
 
   // Parse String for array of hrefs
