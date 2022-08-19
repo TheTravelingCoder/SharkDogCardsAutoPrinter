@@ -46,8 +46,7 @@ const tcgPlayerDownloadPrinter = async () => {
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
-    await printAllOrders();
-    await moveAllFiles();
+    await printAllOrders().then(moveAllFiles);
 
     await browser.close();
   }catch(err){
