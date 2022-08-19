@@ -24,26 +24,26 @@ const tcgPlayerDownloadPrinter = async () => {
     await page.waitForNavigation();
 
     await clickAllOpenOrdersButton(page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
 
     await createListOfOrders(page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
 
     if(lastOrder){
       await dropAllUnneededOrders();
-      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     }
 
     await ifPaginationExistsClickNextPage(page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
-    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
     await printAllOrders();
