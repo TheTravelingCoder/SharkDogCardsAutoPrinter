@@ -148,6 +148,8 @@ async function downloadAllOrderPDFs(page){
   for (var i = 0; i < orders.length; i++) {
     await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     // Click parent link to download PDF
     const [button] = await page.$x("//a[contains(., 'Print Packing Slip')]");
     if (button) {
