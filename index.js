@@ -37,7 +37,6 @@ const tcgPlayerDownloadPrinter = async () => {
     await downloadAllOrderPDFs(page);
     await printAllOrders();
 
-    await page.waitForNavigation();
     await browser.close();
   }catch(err){
     await browser.close();
@@ -60,16 +59,16 @@ async function printAllOrders(){
     });
   });
 
-  // // Move all files to archive folder in Documents
-  // fs.readdir(configs.downloadPath, (err, files) => {
-  //   files.forEach(file => {
-  //     if(file.includes('.pdf')){
-  //       fs.rename(`${configs.downloadPath}/${file}`, `${configs.archivePath}/${file}`, (err) => {
-  //         if (err) throw err;
-  //       });
-  //     }
-  //   });
-  // });
+  // Move all files to archive folder in Documents
+  fs.readdir(configs.downloadPath, (err, files) => {
+    files.forEach(file => {
+      if(file.includes('.pdf')){
+        fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, (err) => {
+          if (err) throw err;
+        });
+      }
+    });
+  });
 }
 
 async function ifPaginationExistsClickNextPage(page){
