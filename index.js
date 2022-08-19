@@ -25,14 +25,25 @@ const tcgPlayerDownloadPrinter = async () => {
 
     await clickAllOpenOrdersButton(page);
     await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
 
     await createListOfOrders(page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
 
     if(lastOrder){
       await dropAllUnneededOrders();
+      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+      await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
     }
 
     await ifPaginationExistsClickNextPage(page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
+    await waitForPageLoadWithScreenshots('afterClickAllOpenOrders', page);
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
     await printAllOrders();
@@ -55,7 +66,7 @@ async function printAllOrders(){
       // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
       if(file.includes('.pdf')){
         console.log('Printing PDF');
-        print.print(`${configs.downloadPath}/${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
+        print.print(`${configs.downloadPath}\\${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
       }
     });
   });
