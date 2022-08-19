@@ -116,7 +116,7 @@ async function dropAllUnneededOrders(){
 
 async function downloadAllOrderPDFs(page){
   console.log('Downloading all order PDFs');
-  await writeFinalOrderNumber(orders[0]);
+  await writeFinalOrderNumber(orders[orders.length - 1]);
   // Loop through all orders
   for (var i = 0; i < orders.length; i++) {
     await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
