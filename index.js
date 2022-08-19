@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const print = require("pdf-to-printer");
-
 const configs = require('./configs.js');
 var orders;
 var lastOrder;
@@ -61,9 +60,11 @@ async function printAllOrders(){
   // Move all files to archive folder in Documents
   fs.readdir(configs.downloadPath, (err, files) => {
     files.forEach(file => {
-      fs.rename(`${configs.downloadPath}/${file}`, `${configs.archivePath}/${file}`, (err) => {
-        if (err) throw err;
-      });
+      if(file.includes('.pdf')){
+        fs.rename(`${configs.downloadPath}/${file}`, `${configs.archivePath}/${file}`, (err) => {
+          if (err) throw err;
+        });
+      }
     });
   });
 }
