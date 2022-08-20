@@ -48,12 +48,8 @@ const tcgPlayerDownloadPrinter = async () => {
     await downloadAllOrderPDFs(page);
 
     setTimeout(async () => {
-      await printAllOrders();
+       printAllOrders();
     }, orders.length * 2000); 
-    
-    setTimeout(async () => {
-      await moveAllFiles();
-    }, orders.length * 6000);
 
     setTimeout(async () => {
       await browser.close();
@@ -64,39 +60,48 @@ const tcgPlayerDownloadPrinter = async () => {
   }
 }
 
-async function printAllOrders(){
+function printAllOrders(){
   console.log('Printing all orders');
   // Open downloads folder, loop through all files, print them
   new Promise((resolve, reject) => {
     fs.readdir(configs.downloadPath, (err, files) => {
       console.log('files', files);
-      files.forEach(file => {
-        console.log('Printing file', file);
-        // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
-        if(file.includes('.pdf')){
-          console.log('Printing PDF');
-          print.print(`${configs.downloadPath}\\${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
-        }
-        // if last file, resolve promise
-        if(file === files[files.length - 1]){
-          resolve();
-        }
-      });
+      if(files){
+        files.forEach(file => {
+          console.log('Printing file', file);
+          // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
+          if(file.includes('.pdf')){
+            console.log('Printing PDF', file);
+            // print.print(`${configs.downloadPath}\\${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
+          }
+          // if last file, resolve promise
+          if(file === files[files.length - 1]){
+            resolve();
+          }
+        });
+      }else{
+        resolve();
+      }
     });
+  }).then(() => {
+    console.log('All files printed');
+    moveAllFiles();
   });
 }
 
-async function moveAllFiles(){
+function moveAllFiles(){
   console.log('Moving all files');
   // Open downloads folder, loop through all files, move them
   fs.readdir(configs.downloadPath, (err, files) => {
     console.log('files', files);
-    files.forEach(file => {
-      console.log('Moving file', file);
-      fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
-        if (err) throw err;
+    if(files){
+      files.forEach(file => {
+        console.log('Moving file', file);
+        fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
+          if (err) throw err;
+        });
       });
-    });
+    }
   });
 }
 
@@ -114,7 +119,7 @@ async function ifPaginationExistsClickNextPage(page){
     if(paginationListItemsCount > 1){
       console.log('There is more than 1 page of orders');
       for(let i = 0; i < paginationListItemsCount; i++){
-        console.log('Clicking next page');
+        console.log('Clicking next page', paginationListItems[i]);
         await paginationListItems[i].click();
         await waitForPageLoadWithScreenshots('afterClickNextPage', page);
         await createListOfOrders(page);
@@ -147,17 +152,19 @@ async function dropAllUnneededOrders(){
 
 async function downloadAllOrderPDFs(page){
   console.log('Downloading all order PDFs');
-  await writeFinalOrderNumber(orders[orders.length - 1]);
-  // Loop through all orders
-  for (var i = 0; i < orders.length; i++) {
-    await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    // Click parent link to download PDF
-    const [button] = await page.$x("//a[contains(., 'Print Packing Slip')]");
-    if (button) {
-      await button.click();
+  if(orders.length > 0){
+    await writeFinalOrderNumber(orders[orders.length - 1]);
+    // Loop through all orders
+    for (var i = 0; i < orders.length; i++) {
+      await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+      // Click parent link to download PDF
+      const [button] = await page.$x("//a[contains(., 'Print Packing Slip')]");
+      if (button) {
+        await button.click();
+      }
     }
   }
 }
