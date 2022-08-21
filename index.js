@@ -91,11 +91,13 @@ function moveAllFiles(){
 async function dropAllUnneededOrders(){
   console.log('Dropping all unneeded orders');
   // Loop through orders and drop duplicates
-  for (var i = 0; i < orders.length; i++) {
-    for (var j = i + 1; j < orders.length; j++) {
-      if (orders[i] === orders[j]) {
-        orders.splice(j, 1);
-        i--;
+  if(orders){
+    for (var i = 0; i < orders.length; i++) {
+      for (var j = i + 1; j < orders.length; j++) {
+        if (orders[i] === orders[j]) {
+          orders.splice(j, 1);
+          i--;
+        }
       }
     }
   }
