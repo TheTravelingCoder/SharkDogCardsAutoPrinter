@@ -25,6 +25,7 @@ const tcgPlayerDownloadPrinter = async () => {
 
     await clickAllOpenOrdersButton(page);
     await changeTo500Orders(page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     await createListOfOrders(page);
     await dropAllUnneededOrders();
     console.log('orders', orders);
