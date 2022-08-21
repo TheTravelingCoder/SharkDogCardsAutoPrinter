@@ -28,6 +28,11 @@ const tcgPlayerDownloadPrinter = async () => {
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
 
+    await changeTo500Orders(page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+
     await createListOfOrders(page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
@@ -40,7 +45,7 @@ const tcgPlayerDownloadPrinter = async () => {
       await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     }
 
-    await ifPaginationExistsClickNextPage(page);
+    // await ifPaginationExistsClickNextPage(page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
     await waitForPageLoadWithScreenshots('afterClickNextPage', page);
@@ -105,29 +110,29 @@ function moveAllFiles(){
   });
 }
 
-async function ifPaginationExistsClickNextPage(page){
-  console.log('Checking for pagination');
-  // Find unordered list of pagination-list
-  const paginationList = await page.$('ul.pagination-list');
-  if(paginationList){
-    console.log('Pagination exists');
-    // Find all list items in pagination-list
-    const paginationListItems = await paginationList.$$('li');
-    // Count list items
-    const paginationListItemsCount = paginationListItems.length;
-    // If there is more than 1 list item, loop through and click each
-    if(paginationListItemsCount > 1){
-      console.log('There is more than 1 page of orders');
-      for(let i = 0; i < paginationListItemsCount; i++){
-        console.log('Clicking next page', paginationListItems[i]);
-        await paginationListItems[i].click();
-        await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-        await createListOfOrders(page);
-        await dropAllUnneededOrders();
-      }
-    }
-  }
-}
+// async function ifPaginationExistsClickNextPage(page){
+//   console.log('Checking for pagination');
+//   // Find unordered list of pagination-list
+//   const paginationList = await page.$('ul.pagination-list');
+//   if(paginationList){
+//     console.log('Pagination exists');
+//     // Find all list items in pagination-list
+//     const paginationListItems = await paginationList.$$('li');
+//     // Count list items
+//     const paginationListItemsCount = paginationListItems.length;
+//     // If there is more than 1 list item, loop through and click each
+//     if(paginationListItemsCount > 1){
+//       console.log('There is more than 1 page of orders');
+//       for(let i = 0; i < paginationListItemsCount; i++){
+//         console.log('Clicking next page', paginationListItems[i]);
+//         await paginationListItems[i].click();
+//         await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+//         await createListOfOrders(page);
+//         await dropAllUnneededOrders();
+//       }
+//     }
+//   }
+// }
 
 async function dropAllUnneededOrders(){
   console.log('Dropping all unneeded orders');
@@ -185,6 +190,12 @@ async function clickAllOpenOrdersButton(page){
       await button.click();
   }
 }
+
+async function changeTo500Orders(page){
+  console.log('Change to 500 orders per page');
+  await page.select('.input-per-page', '500')
+}
+
 
 async function loginToTCGPlayer(page){
   console.log('Logging into TCGPlayer');
