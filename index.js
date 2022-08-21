@@ -24,31 +24,9 @@ const tcgPlayerDownloadPrinter = async () => {
     await page.waitForNavigation();
 
     await clickAllOpenOrdersButton(page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-
     await changeTo500Orders(page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-
     await createListOfOrders(page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-
-    if(lastOrder){
-      await dropAllUnneededOrders();
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    }
-
-    // await ifPaginationExistsClickNextPage(page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await dropAllUnneededOrders();
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
 
@@ -110,30 +88,6 @@ function moveAllFiles(){
   });
 }
 
-// async function ifPaginationExistsClickNextPage(page){
-//   console.log('Checking for pagination');
-//   // Find unordered list of pagination-list
-//   const paginationList = await page.$('ul.pagination-list');
-//   if(paginationList){
-//     console.log('Pagination exists');
-//     // Find all list items in pagination-list
-//     const paginationListItems = await paginationList.$$('li');
-//     // Count list items
-//     const paginationListItemsCount = paginationListItems.length;
-//     // If there is more than 1 list item, loop through and click each
-//     if(paginationListItemsCount > 1){
-//       console.log('There is more than 1 page of orders');
-//       for(let i = 0; i < paginationListItemsCount; i++){
-//         console.log('Clicking next page', paginationListItems[i]);
-//         await paginationListItems[i].click();
-//         await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-//         await createListOfOrders(page);
-//         await dropAllUnneededOrders();
-//       }
-//     }
-//   }
-// }
-
 async function dropAllUnneededOrders(){
   console.log('Dropping all unneeded orders');
   // Loop through orders and drop duplicates
@@ -147,10 +101,12 @@ async function dropAllUnneededOrders(){
   }
 
   // Drop all in array before the last order
-  var index = orders.indexOf(lastOrder);
-  if (index > -1) {
-    for(var i = 0; i < index + 1; i++){
-      orders.shift();
+  if(lastOrder){
+    var index = orders.indexOf(lastOrder);
+    if (index > -1) {
+      for(var i = 0; i < index + 1; i++){
+        orders.shift();
+      }
     }
   }
 }
@@ -162,9 +118,6 @@ async function downloadAllOrderPDFs(page){
     // Loop through all orders
     for (var i = 0; i < orders.length; i++) {
       await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-      await waitForPageLoadWithScreenshots('afterClickNextPage', page);
       // Click parent link to download PDF
       const [button] = await page.$x("//a[contains(., 'Print Packing Slip')]");
       if (button) {
@@ -177,7 +130,6 @@ async function downloadAllOrderPDFs(page){
 async function writeFinalOrderNumber(orderNumber){
   console.log('Writing final order number');
   fs.writeFile('./lastOrder.txt', orderNumber, (err) => {
-      
     // In case of a error throw err.
     if (err) throw err;
   });
@@ -221,14 +173,16 @@ async function createListOfOrders(page){
 
   // Parse String for array of hrefs
   var hrefs = table.match(/href="([^"]*)/g);
-  var hrefs = hrefs.map(function(href){
-    return href.replace('href="', '');
-  });
+  if(hrefs){
+    hrefs = hrefs.map(function(href){
+      return href.replace('href="', '');
+    });
 
-  // Parse array for order numbers
-  orders = hrefs.map(function(href){
-    return href.match(/order\/([^"]*)/)[1];
-  });
+    // Parse array for order numbers
+    orders = hrefs.map(function(href){
+      return href.match(/order\/([^"]*)/)[1];
+    });
+  }
 }
 
 async function waitForPageLoadWithScreenshots(filename, page){
@@ -253,3 +207,27 @@ async function waitForPageLoadWithScreenshots(filename, page){
 }
 
 tcgPlayerDownloadPrinter();
+
+// async function ifPaginationExistsClickNextPage(page){
+//   console.log('Checking for pagination');
+//   // Find unordered list of pagination-list
+//   const paginationList = await page.$('ul.pagination-list');
+//   if(paginationList){
+//     console.log('Pagination exists');
+//     // Find all list items in pagination-list
+//     const paginationListItems = await paginationList.$$('li');
+//     // Count list items
+//     const paginationListItemsCount = paginationListItems.length;
+//     // If there is more than 1 list item, loop through and click each
+//     if(paginationListItemsCount > 1){
+//       console.log('There is more than 1 page of orders');
+//       for(let i = 0; i < paginationListItemsCount; i++){
+//         console.log('Clicking next page', paginationListItems[i]);
+//         await paginationListItems[i].click();
+//         await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+//         await createListOfOrders(page);
+//         await dropAllUnneededOrders();
+//       }
+//     }
+//   }
+// }
