@@ -4,6 +4,7 @@ const print = require("pdf-to-printer");
 const configs = require('./configs.js');
 var orders;
 var lastOrder;
+var movedFiles = [];
 
 const tcgPlayerDownloadPrinter = async () => {
   const browser = await puppeteer.launch({
@@ -25,19 +26,19 @@ const tcgPlayerDownloadPrinter = async () => {
 
     await clickAllOpenOrdersButton(page);
     await changeTo500Orders(page);
-    await waitForPageLoadWithScreenshots('afterClickNextPage', page);
+    await waitForPageLoadWithScreenshots('1', page);
     await createListOfOrders(page);
     await dropAllUnneededOrders();
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
 
     setTimeout(async () => {
-       printAllOrders();
-    }, orders.length * 2000); 
+      await moveAllFiles();
+    }, orders.length * 1000); 
 
     setTimeout(async () => {
       await browser.close();
-    }, orders.length * 9000);
+    }, orders.length * 1000);
   }catch(err){
     await browser.close();
     console.log(err);
@@ -46,18 +47,28 @@ const tcgPlayerDownloadPrinter = async () => {
 
 function printAllOrders(){
   console.log('Printing all orders');
-  // Open downloads folder, loop through all files, print them
+  // if movedFiles array is greater than 0, loop through and print
+  if(movedFiles.length > 0){
+    movedFiles.forEach(file => {
+      print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
+    });
+  }
+}
+
+async function moveAllFiles(){
+  console.log('Moving all files');
   new Promise((resolve, reject) => {
+    // Open downloads folder, loop through all files, move them
     fs.readdir(configs.downloadPath, (err, files) => {
       console.log('files', files);
       if(files){
         files.forEach(file => {
-          console.log('Printing file', file);
-          // Print file if it is a PDF to device id 'Brother HL-L3270CDW series'
-          if(file.includes('.pdf')){
-            console.log('Printing PDF', file);
-            print.print(`${configs.downloadPath}\\${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
-          }
+          console.log('Moving file', file);
+          // push new file location to movedFiles array
+          movedFiles.push(`${configs.archivePath}\\${file}`);
+          fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
+            if (err) throw err;
+          });
           // if last file, resolve promise
           if(file === files[files.length - 1]){
             resolve();
@@ -68,24 +79,8 @@ function printAllOrders(){
       }
     });
   }).then(() => {
-    console.log('All files printed');
-    moveAllFiles();
-  });
-}
-
-function moveAllFiles(){
-  console.log('Moving all files');
-  // Open downloads folder, loop through all files, move them
-  fs.readdir(configs.downloadPath, (err, files) => {
-    console.log('files', files);
-    if(files){
-      files.forEach(file => {
-        console.log('Moving file', file);
-        fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
-          if (err) throw err;
-        });
-      });
-    }
+    // Once all files are moved, print all orders
+    printAllOrders();
   });
 }
 
