@@ -50,6 +50,7 @@ function printAllOrders(){
   // if movedFiles array is greater than 0, loop through and print
   if(movedFiles.length > 0){
     movedFiles.forEach(file => {
+      console.log('Printing file', file);
       print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
     });
   }
