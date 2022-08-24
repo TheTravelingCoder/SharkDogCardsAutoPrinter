@@ -69,11 +69,11 @@ async function moveAllFiles(){
           movedFiles.push(`${configs.archivePath}\\${file}`);
           fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
             if (err) throw err;
+            // if last file, resolve promise
+            if(file === files[files.length - 1]){
+              resolve();
+            }
           });
-          // if last file, resolve promise
-          if(file === files[files.length - 1]){
-            resolve();
-          }
         });
       }else{
         resolve();
