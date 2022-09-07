@@ -3,7 +3,9 @@ const fs = require('fs');
 const print = require("pdf-to-printer");
 const configs = require('./configs.js');
 var orders;
-var lastOrder;
+var lastOrdersList;
+var lastOrdersArray;
+var allOpenOrders;
 var movedFiles = [];
 
 const tcgPlayerDownloadPrinter = async () => {
@@ -29,16 +31,18 @@ const tcgPlayerDownloadPrinter = async () => {
     await waitForPageLoadWithScreenshots('1', page);
     await createListOfOrders(page);
     await dropAllUnneededOrders();
+    await writeFinalOrderNumber(allOpenOrders.toString());
+    await filterOrders();
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
 
     setTimeout(async () => {
       await moveAllFiles();
-    }, orders.length * 1000); 
+    }, orders.length * 2000); 
 
     setTimeout(async () => {
       await browser.close();
-    }, orders.length * 1000);
+    }, orders.length * 2500);
   }catch(err){
     await browser.close();
     console.log(err);
@@ -89,22 +93,29 @@ async function dropAllUnneededOrders(){
   console.log('Dropping all unneeded orders');
   // Loop through orders and drop duplicates
   if(orders){
+    let count = orders.length;
     for (var i = 0; i < orders.length; i++) {
       for (var j = i + 1; j < orders.length; j++) {
         if (orders[i] === orders[j]) {
-          orders.splice(j, 1);
+          orders.splice(i, 1);
           i--;
         }
       }
     }
   }
 
-  // Drop all in array before the last order
-  if(lastOrder){
-    var index = orders.indexOf(lastOrder);
-    if (index > -1) {
-      for(var i = 0; i < index + 1; i++){
-        orders.shift();
+  allOpenOrders = orders;
+}
+
+async function filterOrders(){
+  // Loop through orders and drop any orders that are in lastOrdersArray
+  if(lastOrdersArray){
+    for (var i = 0; i < orders.length; i++) {
+      for (var j = 0; j < lastOrdersArray.length; j++) {
+        if (orders[i] === lastOrdersArray[j]) {
+          orders.splice(i, 1);
+          i--;
+        }
       }
     }
   }
@@ -112,8 +123,7 @@ async function dropAllUnneededOrders(){
 
 async function downloadAllOrderPDFs(page){
   console.log('Downloading all order PDFs');
-  if(orders.length > 0){
-    await writeFinalOrderNumber(orders[orders.length - 1]);
+  if(orders.length > 0){    
     // Loop through all orders
     for (var i = 0; i < orders.length; i++) {
       await page.goto(`${configs.url}/admin/orders/manageorder/${orders[i]}`);
@@ -159,10 +169,9 @@ async function checkForlastOrderTxt(){
   console.log('Checking for lastOrder.txt');
   // Check for lastOrder.txt
   if (fs.existsSync('./lastOrder.txt')) {
-    fs.readFile('./lastOrder.txt', 'utf8', function(err, data) {
-      if (err) throw err;
-      lastOrder = data;
-    });
+    lastOrdersList = fs.readFileSync("./lastOrder.txt").toString('utf-8');
+    lastOrdersArray = lastOrdersList.split(',');
+    console.log(lastOrdersArray)
   } 
 }
 
@@ -206,27 +215,3 @@ async function waitForPageLoadWithScreenshots(filename, page){
 }
 
 tcgPlayerDownloadPrinter();
-
-// async function ifPaginationExistsClickNextPage(page){
-//   console.log('Checking for pagination');
-//   // Find unordered list of pagination-list
-//   const paginationList = await page.$('ul.pagination-list');
-//   if(paginationList){
-//     console.log('Pagination exists');
-//     // Find all list items in pagination-list
-//     const paginationListItems = await paginationList.$$('li');
-//     // Count list items
-//     const paginationListItemsCount = paginationListItems.length;
-//     // If there is more than 1 list item, loop through and click each
-//     if(paginationListItemsCount > 1){
-//       console.log('There is more than 1 page of orders');
-//       for(let i = 0; i < paginationListItemsCount; i++){
-//         console.log('Clicking next page', paginationListItems[i]);
-//         await paginationListItems[i].click();
-//         await waitForPageLoadWithScreenshots('afterClickNextPage', page);
-//         await createListOfOrders(page);
-//         await dropAllUnneededOrders();
-//       }
-//     }
-//   }
-// }
