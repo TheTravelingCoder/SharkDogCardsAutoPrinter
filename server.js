@@ -10,7 +10,7 @@ server.listen(port, function () {
 });
 
 // create cron job that runs index.js every hour
-cron.schedule('0 * * * *', () => {
+cron.schedule('0 0 * * *', () => {
   console.log('running a task every hour');
   require('./index.js');
 }, null, true, 'America/Los_Angeles');
