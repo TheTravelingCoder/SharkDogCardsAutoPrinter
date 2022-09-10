@@ -60,7 +60,6 @@ function printAllOrders(){
     if(movedFiles.length > 0){
       movedFiles.forEach(file => {
         print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
-        console.log(err);
       });
       console.log('All orders printed');
     }else{
