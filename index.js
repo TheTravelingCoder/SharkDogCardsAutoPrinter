@@ -8,7 +8,7 @@ var lastOrdersArray;
 var allOpenOrders;
 var movedFiles = [];
 
-const tcgPlayerDownloadPrinter = async () => {
+async function tcgPlayerDownloadPrinter(){
   const browser = await puppeteer.launch({
     args: [
       '--no-sandbox',
@@ -42,47 +42,63 @@ const tcgPlayerDownloadPrinter = async () => {
 
     setTimeout(async () => {
       await browser.close();
+      console.log('Browser closed');
+      return;
     }, orders.length * 2000);
   }catch(err){
     await browser.close();
     console.log(err);
+    return 1;
   }
 }
 
 function printAllOrders(){
   console.log('Printing all orders');
   // if movedFiles array is greater than 0, loop through and print
-  if(movedFiles.length > 0){
-    movedFiles.forEach(file => {
-      console.log('Printing file', file);
-      print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then(console.log).catch(console.error);
-    });
-  }
+  try{
+    console.log(movedFiles)
+    if(movedFiles.length > 0){
+      movedFiles.forEach(file => {
+        print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
+        console.log(err);
+      });
+      console.log('All orders printed');
+    }else{
+      console.log('No files to print');
+    }
+  }catch(err){
+    console.log(err);
+  }  
 }
 
 async function moveAllFiles(){
   console.log('Moving all files');
   new Promise((resolve, reject) => {
     // Open downloads folder, loop through all files, move them
-    fs.readdir(configs.downloadPath, (err, files) => {
-      console.log('files', files);
-      if(files){
-        files.forEach(file => {
-          console.log('Moving file', file);
-          // push new file location to movedFiles array
-          movedFiles.push(`${configs.archivePath}\\${file}`);
-          fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
-            if (err) throw err;
-            // if last file, resolve promise
-            if(file === files[files.length - 1]){
-              resolve();
-            }
+    try{
+      fs.readdir(configs.downloadPath, (err, files) => {
+        console.log('files', files);
+        if(files){
+          files.forEach(file => {
+            console.log('Moving file', file);
+            // push new file location to movedFiles array
+            movedFiles.push(`${configs.archivePath}\\${file}`);
+            fs.rename(`${configs.downloadPath}\\${file}`, `${configs.archivePath}\\${file}`, function (err) {
+              if (err) throw err;
+              // if last file, resolve promise
+              if(file === files[files.length - 1]){
+                resolve();
+              }
+            });
           });
-        });
-      }else{
-        resolve();
-      }
-    });
+        }else{
+          resolve();
+        }
+      });
+    }catch(err){
+      console.error('error', err);
+      reject(err);
+    }
   }).then(() => {
     // Once all files are moved, print all orders
     printAllOrders();
@@ -214,4 +230,6 @@ async function waitForPageLoadWithScreenshots(filename, page){
   });
 }
 
-tcgPlayerDownloadPrinter();
+module.exports = {
+  tcgPlayerDownloadPrinter
+}
