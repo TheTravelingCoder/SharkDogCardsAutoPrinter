@@ -224,5 +224,6 @@ async function waitForPageLoadWithScreenshots(filename, page){
 }
 
 module.exports = {
-  tcgPlayerDownloadPrinter
+  tcgPlayerDownloadPrinter,
+  moveAllFiles,
 }
