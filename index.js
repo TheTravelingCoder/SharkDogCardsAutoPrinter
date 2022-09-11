@@ -2,11 +2,11 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const print = require("pdf-to-printer");
 const configs = require('./configs.js');
-var orders;
-var lastOrdersList;
-var lastOrdersArray;
-var allOpenOrders;
-var movedFiles = [];
+let orders;
+let lastOrdersList;
+let lastOrdersArray;
+let allOpenOrders;
+let movedFiles = [];
 
 async function tcgPlayerDownloadPrinter(){
   const browser = await puppeteer.launch({
@@ -35,16 +35,9 @@ async function tcgPlayerDownloadPrinter(){
     await filterOrders();
     console.log('orders', orders);
     await downloadAllOrderPDFs(page);
-
-    setTimeout(async () => {
-      await moveAllFiles();
-    }, orders.length * 1500); 
-
-    setTimeout(async () => {
-      await browser.close();
-      console.log('Browser closed');
-      return;
-    }, orders.length * 2000);
+    await page.waitForTimeout(2000);
+    await browser.close();
+    return;
   }catch(err){
     await browser.close();
     console.log(err);
@@ -72,6 +65,7 @@ function printAllOrders(){
 
 async function moveAllFiles(){
   console.log('Moving all files');
+  movedFiles = [];
   new Promise((resolve, reject) => {
     // Open downloads folder, loop through all files, move them
     try{

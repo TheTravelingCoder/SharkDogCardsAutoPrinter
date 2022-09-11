@@ -15,5 +15,5 @@ cron.schedule('0 * * * *', async () => {
   console.log('running a task every hour');
   // run index.js
   await index.tcgPlayerDownloadPrinter();
-  console.log('finished running index.js');
+  await index.moveAllFiles();
 }, null, true, 'America/Los_Angeles');
