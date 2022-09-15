@@ -33,7 +33,7 @@ async function moveAllFiles(){
           reject(err);
         }
         console.log('files', files);
-        if(files){
+        if(files != []){
           files.forEach(file => {
             console.log('Moving file', file);
             // push new file location to movedFiles array
@@ -60,7 +60,7 @@ async function moveAllFiles(){
             }
           });
         }else{
-          resolve();
+          reject();
         }
       });
     }catch(err){
@@ -70,6 +70,8 @@ async function moveAllFiles(){
   }).then(() => {
     // Once all files are moved, print all orders
     printAllOrders();
+  }).catch(err => {
+    console.log(err);
   });
 }
 

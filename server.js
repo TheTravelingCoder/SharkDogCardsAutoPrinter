@@ -12,7 +12,7 @@ server.listen(port, function () {
 });
 
 // create cron job that runs index.js every hour
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 * * * *', async () => {
   console.log('running a task every hour');
   // run index.js
   await index.tcgPlayerDownloadPrinter().then(() => {

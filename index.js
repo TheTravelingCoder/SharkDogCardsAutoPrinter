@@ -68,6 +68,7 @@ async function filterOrders(){
       for (var j = 0; j < lastOrdersArray.length; j++) {
         if (orders[i] == lastOrdersArray[j]) {
           console.log('Order found in lastOrdersArray', orders[i]);
+          // Remove order from orders array
           orders.splice(i, 1);
           i--;
         }
