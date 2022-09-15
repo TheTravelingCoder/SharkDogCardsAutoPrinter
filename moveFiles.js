@@ -14,8 +14,10 @@ async function printAllOrders(){
         await print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
       });
       console.log('All orders printed');
+      return;
     }else{
       console.log('No files to print');
+      return;
     }
   }catch(err){
     console.log(err);
