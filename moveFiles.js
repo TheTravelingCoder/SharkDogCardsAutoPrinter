@@ -6,22 +6,30 @@ let movedFiles = [];
 
 async function printAllOrders(){
   console.log('Printing all orders');
-  // if movedFiles array is greater than 0, loop through and print
-  try{
-    console.log(movedFiles)
-    if(movedFiles.length > 0){
-      movedFiles.forEach(async file => {
-        await print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
-      });
-      console.log('All orders printed');
-      return;
-    }else{
-      console.log('No files to print');
-      return;
+  new Promise((resolve, reject) => {
+    // if movedFiles array is greater than 0, loop through and print
+    try{
+      console.log(movedFiles)
+      if(movedFiles.length > 0){
+        movedFiles.forEach(async file => {
+          await print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
+        });
+        console.log('All orders printed');
+        resolve();
+        return;
+      }else{
+        console.log('No files to print');
+        resolve();
+        return;
+      }
+    }catch(err){
+      console.log(err);
+      reject(err);
     }
-  }catch(err){
+  }).catch(err => {
     console.log(err);
-  }  
+    return;
+  });
 }
 
 async function moveAllFiles(){
