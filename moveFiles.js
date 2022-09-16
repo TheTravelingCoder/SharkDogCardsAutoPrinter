@@ -69,7 +69,7 @@ async function moveAllFiles(){
       console.error('error', err);
       reject(err);
     }
-  }).then(() => {
+  }).then(async () => {
     // Once all files are moved, print all orders
     await printAllOrders();
   }).catch(err => {
