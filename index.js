@@ -110,6 +110,7 @@ async function clickAllOpenOrdersButton(page){
 
 async function changeTo500Orders(page){
   console.log('Change to 500 orders per page');
+  await page.waitForSelector('.input-per-page');
   await page.select('.input-per-page', '500')
 }
 
