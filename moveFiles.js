@@ -9,7 +9,6 @@ async function printAllOrders(){
   new Promise((resolve, reject) => {
     // if movedFiles array is greater than 0, loop through and print
     try{
-      console.log(movedFiles)
       if(movedFiles.length > 0){
         movedFiles.forEach(async file => {
           await print.print(`${file}`, {printer: 'Brother HL-L3270CDW series'}).then((res) => {console.log(res)}).catch((err) => {console.error(err)});
@@ -28,12 +27,14 @@ async function printAllOrders(){
     }
   }).catch(err => {
     console.log(err);
+    console.log('There was an error printing all orders');
     return;
   });
 }
 
 async function moveAllFiles(){
   console.log('Moving all files');
+  movedFiles = [];
   new Promise((resolve, reject) => {
     // Open downloads folder, loop through all files, move them
     try{
@@ -78,9 +79,10 @@ async function moveAllFiles(){
       reject(err);
     }
   }).then(async () => {
-    // Once all files are moved, print all orders
+    console.log('movedFiles', movedFiles);
     await printAllOrders();
   }).catch(err => {
+    console.log('There was an error moving all files');
     console.log(err);
   });
 }
