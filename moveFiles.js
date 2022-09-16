@@ -71,7 +71,7 @@ async function moveAllFiles(){
     }
   }).then(() => {
     // Once all files are moved, print all orders
-    printAllOrders();
+    await printAllOrders();
   }).catch(err => {
     console.log(err);
   });
