@@ -117,8 +117,10 @@ async function changeTo500Orders(page){
 
 async function loginToTCGPlayer(page){
   console.log('Logging into TCGPlayer');
-  await page.type('#UserName', configs.email);
-  await page.type('#Password', configs.password);
+  // type username into box with name='email'
+  await page.waitForSelector('input[name="Email"]');
+  await page.type('input[name="Email"]', configs.email);
+  await page.type('input[name="Password"]', configs.password);
   await page.keyboard.press('Enter');
 }
 
@@ -171,6 +173,8 @@ async function waitForPageLoadWithScreenshots(filename, page){
   });
 }
 
-module.exports = {
-  tcgPlayerDownloadPrinter,
-}
+// module.exports = {
+//   tcgPlayerDownloadPrinter,
+// }
+
+tcgPlayerDownloadPrinter();
