@@ -173,8 +173,6 @@ async function waitForPageLoadWithScreenshots(filename, page){
   });
 }
 
-// module.exports = {
-//   tcgPlayerDownloadPrinter,
-// }
-
-tcgPlayerDownloadPrinter();
+module.exports = {
+  tcgPlayerDownloadPrinter,
+}
